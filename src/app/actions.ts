@@ -3,6 +3,7 @@
 
 import { analyzeHomeworkText } from '@/ai/flows/analyze-homework-text';
 import { detectAIGeneratedContentInPDF } from '@/ai/flows/detect-ai-generated-content-pdf';
+import { aiTestFlow } from '@/ai/flows/ai-test-flow';
 
 export type AnalysisResultData = {
   isAiGenerated: boolean;
@@ -48,4 +49,17 @@ export async function analyzeFileAction(
     console.error('Error in analyzeFileAction:', error);
     throw new Error('Failed to analyze file. The file may be corrupted or in an unsupported format. Please try again.');
   }
+}
+
+export async function aiTest(input: {text: string}): Promise<{response: string}> {
+    if (!input.text) {
+        throw new Error("Input text is missing.");
+    }
+    try {
+        const result = await aiTestFlow(input);
+        return result;
+    } catch(e) {
+        console.error("Error in aiTest:", e);
+        throw new Error("Failed to get response from AI.");
+    }
 }

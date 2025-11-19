@@ -1,5 +1,6 @@
 import { HomeworkChecker } from '@/components/homework-checker';
-import { BrainCircuit } from 'lucide-react';
+import { AiDiagnosticTool } from '@/components/ai-diagnostic-tool';
+import { BrainCircuit, Bot } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -19,6 +20,19 @@ export default function Home() {
         </header>
 
         <HomeworkChecker />
+
+        <div className="mt-16">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3">
+              <Bot className="w-6 h-6 text-muted-foreground" />
+              <h2 className="text-2xl font-bold font-headline tracking-tight">AI Status Check</h2>
+            </div>
+             <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+              Use this tool to verify that the AI service is responding.
+            </p>
+          </div>
+          <AiDiagnosticTool />
+        </div>
       </main>
 
       <footer className="text-center py-6 text-sm text-muted-foreground">
