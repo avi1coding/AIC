@@ -25,8 +25,8 @@ export function AnalysisResult({
     : 'Low confidence of AI involvement.';
 
   const getProgressColor = (score: number) => {
-    if (score > 0.75) return 'hsl(var(--destructive))';
-    if (score > 0.5) return 'hsl(var(--chart-5))';
+    if (score > 75) return 'hsl(var(--destructive))';
+    if (score > 50) return 'hsl(var(--chart-5))';
     return 'hsl(var(--chart-2))';
   };
 
@@ -45,20 +45,19 @@ export function AnalysisResult({
             <h3 className="font-semibold">Confidence Score</h3>
             <span
               className="font-headline font-bold text-3xl"
-              style={{ color: getProgressColor(confidenceScore) }}
+              style={{ color: getProgressColor(scoreInPercent) }}
             >
               {scoreInPercent}% AI
             </span>
           </div>
-          <div
+          <Progress
+            value={scoreInPercent}
             style={
               {
-                '--primary': getProgressColor(confidenceScore),
+                '--progress-color': getProgressColor(scoreInPercent),
               } as React.CSSProperties
             }
-          >
-            <Progress value={scoreInPercent} />
-          </div>
+          />
         </div>
         {explanation && (
           <div className="space-y-2">
