@@ -47,7 +47,7 @@ export function AnalysisResult({
               className="font-headline font-bold text-3xl"
               style={{ color: getProgressColor(confidenceScore) }}
             >
-              {scoreInPercent}%
+              {scoreInPercent}% AI
             </span>
           </div>
           <div
