@@ -1,0 +1,56 @@
+
+'use server';
+
+import { analyzeHomeworkText } from '@/ai/flows/analyze-homework-text';
+import { detectAIGeneratedContentInPDF } from '@/ai/flows/detect-ai-generated-content-pdf';
+
+export type AnalysisResultData = {
+  isAiGenerated: boolean;
+  confidenceScore: number;
+  explanation: string;
+};
+
+export async function analyzeTextAction(
+  text: string
+): Promise<AnalysisResultData> {
+  if (!text || text.length < 50) {
+    throw new Error('Text is too short for a meaningful analysis. Please provide at least 50 characters.');
+  }
+  try {
+    const result = await analyzeHomeworkText({ text });
+    return {
+      ...result,
+      explanation: `The analysis indicates the text is ${
+        result.isAiGenerated ? 'likely' : 'unlikely to be'
+      } AI-generated based on linguistic patterns.`,
+    };
+  } catch (error) {
+    console.error('Error in analyzeTextAction:', error);
+    throw new Error('Failed to analyze text. Please try again.');
+  }
+}
+
+export async function analyzeFileAction(
+  dataUri: string
+): Promise<AnalysisResultData> {
+  if (!dataUri) {
+    throw new Error('File data is missing.');
+  }
+
+  try {
+    const result = await detectAIGeneratedContentInPDF({ pdfDataUri: dataUri });
+
+    const isAiGenerated =
+      (result.analysisResult && result.analysisResult.toLowerCase().includes('ai-generated')) ||
+      result.confidenceScore > 0.6;
+
+    return {
+      isAiGenerated,
+      confidenceScore: result.confidenceScore,
+      explanation: result.analysisResult || 'Analysis complete.',
+    };
+  } catch (error) {
+    console.error('Error in analyzeFileAction:', error);
+    throw new Error('Failed to analyze file. The file may be corrupted or in an unsupported format. Please try again.');
+  }
+}
