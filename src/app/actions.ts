@@ -18,12 +18,7 @@ export async function analyzeTextAction(
   }
   try {
     const result = await analyzeHomeworkText({ text });
-    return {
-      ...result,
-      explanation: `The analysis indicates the text is ${
-        result.isAiGenerated ? 'likely' : 'unlikely to be'
-      } AI-generated based on linguistic patterns.`,
-    };
+    return result;
   } catch (error) {
     console.error('Error in analyzeTextAction:', error);
     throw new Error('Failed to analyze text. Please try again.');

@@ -3,4 +3,3 @@ config();
 
 import '@/ai/flows/detect-ai-generated-content-pdf.ts';
 import '@/ai/flows/analyze-homework-text.ts';
-import '@/ai/flows/generate-confidence-score.ts';
