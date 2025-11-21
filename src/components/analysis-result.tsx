@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Dot } from 'lucide-react';
 import type { AnalysisResultData } from '@/app/actions';
 
 export function AnalysisResult({
@@ -29,6 +29,11 @@ export function AnalysisResult({
     if (score > 50) return 'hsl(var(--chart-5))';
     return 'hsl(var(--chart-2))';
   };
+  
+  const explanationPoints = explanation
+    ?.split(/(?=[-\u2022]|\d+\.\s)/) // Split by hyphens, bullets, or "1. "
+    .map(point => point.trim().replace(/^[-\u2022]|\d+\.\s/, '')) // Remove the bullet/number
+    .filter(point => point.length > 0);
 
   return (
     <Card className="mt-8">
@@ -59,10 +64,17 @@ export function AnalysisResult({
             }
           />
         </div>
-        {explanation && (
+        {explanationPoints && explanationPoints.length > 0 && (
           <div className="space-y-2">
             <h3 className="font-semibold">Summary</h3>
-            <p className="text-sm text-muted-foreground">{explanation}</p>
+            <ul className="space-y-2 text-sm text-muted-foreground list-inside">
+              {explanationPoints.map((point, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <Dot className="w-5 h-5 mt-0.5 shrink-0 text-primary" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </CardContent>
