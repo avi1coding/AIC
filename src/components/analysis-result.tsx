@@ -31,8 +31,8 @@ export function AnalysisResult({
   };
   
   const explanationPoints = explanation
-    ?.split(/(?=[-\u2022]|\d+\.\s)/) // Split by hyphens, bullets, or "1. "
-    .map(point => point.trim().replace(/^[-\u2022]|\d+\.\s/, '')) // Remove the bullet/number
+    ?.split('\n') // Split by new lines
+    .map(point => point.trim().replace(/^[-\u2022*]|\d+\.\s/, '').trim()) // Remove list markers and trim
     .filter(point => point.length > 0);
 
   return (
