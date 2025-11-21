@@ -43,6 +43,7 @@ When rewriting, you should:
 - Use rhetorical questions or occasional idioms where appropriate to make the text more conversational.
 - Fix any grammatical errors or awkward phrasing.
 - Ensure the core meaning of the original text is preserved.
+- **Preserve the original paragraph structure.** If the original text has multiple paragraphs, the rewritten text should also have the same number of paragraphs.
 
 Rewrite the following text:
 
