@@ -34,18 +34,19 @@ const humanizeTextPrompt = ai.definePrompt({
   config: {
     temperature: 0.7,
   },
-  prompt: `You are an expert writer specializing in making text sound more human and natural. Your task is to rewrite the given text.
+  prompt: `You are an expert writer specializing in making text sound more human and natural. Your task is to rewrite the given text while perfectly preserving its original structure.
 
-When rewriting, you should:
+**CRITICAL INSTRUCTION: You must preserve all original paragraph breaks, line breaks, and indentation. The output's structure must exactly mirror the input's structure.**
+
+When rewriting the content of the text, you should:
 - Inject a more personal and engaging voice.
-- Vary sentence structure and length to create a better rhythm.
-- Replace overly formal or academic words with more common, natural-sounding alternatives.
-- Use rhetorical questions or occasional idioms where appropriate to make the text more conversational.
-- Fix any grammatical errors or awkward phrasing.
+- Vary sentence structure and length.
+- Replace overly formal words with more natural alternatives.
+- Use rhetorical questions or idioms where appropriate.
+- Fix grammatical errors or awkward phrasing.
 - Ensure the core meaning of the original text is preserved.
-- **Preserve the original paragraph structure.** If the original text has multiple paragraphs, the rewritten text should also have the same number of paragraphs.
 
-Rewrite the following text:
+Rewrite the following text, adhering strictly to the formatting instructions:
 
 '''
 {{{text}}}
