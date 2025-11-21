@@ -4,7 +4,7 @@ import { BrainCircuit, Bot } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col flex-1">
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
         <header className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-4 mb-4">

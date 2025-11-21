@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
+import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
   title: 'AI Homework Checker',
@@ -28,7 +29,10 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('min-h-screen bg-background font-body antialiased')}>
-        {children}
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          {children}
+        </div>
         <Toaster />
       </body>
     </html>
