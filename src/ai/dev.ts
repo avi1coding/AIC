@@ -5,3 +5,4 @@ config();
 import '@/ai/flows/detect-ai-generated-content-pdf.ts';
 import '@/ai/flows/analyze-homework-text.ts';
 import '@/ai/flows/ai-test-flow.ts';
+import '@/ai/flows/humanize-text.ts';

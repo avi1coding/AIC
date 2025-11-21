@@ -4,6 +4,7 @@
 import { analyzeHomeworkText } from '@/ai/flows/analyze-homework-text';
 import { detectAIGeneratedContentInPDF } from '@/ai/flows/detect-ai-generated-content-pdf';
 import { aiTestFlow } from '@/ai/flows/ai-test-flow';
+import { humanizeText } from '@/ai/flows/humanize-text';
 
 export type AnalysisResultData = {
   isAiGenerated: boolean;
@@ -62,4 +63,19 @@ export async function aiTest(input: {text: string}): Promise<{response: string}>
         console.error("Error in aiTest:", e);
         throw new Error("Failed to get response from AI.");
     }
+}
+
+export async function humanizeTextAction(
+  text: string
+): Promise<{ humanizedText: string }> {
+  if (!text) {
+    throw new Error('Text to humanize is missing.');
+  }
+  try {
+    const result = await humanizeText({ text });
+    return result;
+  } catch (error) {
+    console.error('Error in humanizeTextAction:', error);
+    throw new Error('Failed to humanize text. Please try again.');
+  }
 }
