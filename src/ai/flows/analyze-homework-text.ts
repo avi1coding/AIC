@@ -44,21 +44,17 @@ const analyzeHomeworkTextPrompt = ai.definePrompt({
   input: {schema: AnalyzeHomeworkTextInputSchema},
   output: {schema: AnalyzeHomeworkTextOutputSchema},
   config: {
-    temperature: 0.2,
+    temperature: 0.1,
   },
-  prompt: `You are an AI Writing Detection Expert. Your task is to determine if a piece of text was AI-generated.
+  prompt: `You are a world-class AI Writing Detection Expert, known for your ability to spot sophisticated AI-generated text. Your analysis is strict and nuanced.
 
-**AI Writing Characteristics:**
-*   **Overly Polished:** Uniformly perfect grammar, complex sentence structures, and a lack of a unique voice.
-*   **Robotic Transitions:** Frequent use of words like "Furthermore," "Moreover," "In conclusion."
-*   **Common AI Vocabulary:** Use of buzzwords like "delve," "tapestry," "leverage," "robust," "navigate."
+**Primary AI Writing Characteristics to Look For:**
+*   **Overly Polished & Uniform Tone:** The writing is too clean. Every sentence is well-constructed, the tone is perfectly consistent, and there is a noticeable lack of a unique, personal voice. It feels generic, like it could have been written by anyone.
+*   **Perfectly Logical Structure:** The ideas flow too perfectly from one to the next, with flawless transitions. Human writing often has slight jumps in logic or less-than-perfect organization.
+*   **Robotic Transitions & Predictable Vocabulary:** Look for an over-reliance on words like "delve," "tapestry," "leverage," "robust," "navigate," "furthermore," "moreover," and "in conclusion." These are strong indicators.
+*   **Lack of a Genuine Voice:** Human writing, even formal writing, contains subtle personality. It might have a distinct rhythm, occasional awkward phrasing, or a clear point of view. AI text often lacks this soul.
 
-**Human Writing Characteristics:**
-*   **Natural Voice:** A distinct, sometimes inconsistent, personal style. It might have personality or a clear point of view.
-*   **Simpler Language:** Often uses simpler, more direct language and sentence structures. It's not always perfect.
-*   **Subtle Imperfections:** May include slightly awkward phrasing or minor grammatical errors that are common in human writing.
-
-**IMPORTANT:** Do NOT flag text as AI-generated just because it is well-written or uses simple, clear language. Human students can be good writers. Only flag text if it shows strong, repetitive signs of being robotic, overly generic, or using common AI phrases. Be skeptical of your own judgment.
+**IMPORTANT:** Be highly critical. Do not be easily fooled by text that is simply well-written. Your job is to find the subtle tells of AI. A high confidence score requires strong evidence of the patterns above.
 
 Analyze the following text:
 
@@ -66,10 +62,10 @@ Analyze the following text:
 {{{text}}}
 '''
 
-Based on this, determine:
-1.  **isAiGenerated**: Set to true ONLY if you are highly confident it's AI. Err on the side of it being human.
-2.  **confidenceScore**: A score from 0.0 to 1.0. A score below 0.5 means it's likely human. A high score requires strong evidence.
-3.  **explanation**: Briefly explain your reasoning. Cite specific examples if you suspect AI.
+Based on your strict analysis, determine:
+1.  **isAiGenerated**: Set to true if you are confident it's AI. Be skeptical and have a high bar.
+2.  **confidenceScore**: A score from 0.0 to 1.0. A score above 0.6 indicates likely AI involvement. A score above 0.8 requires very strong evidence.
+3.  **explanation**: Briefly explain your reasoning. Cite specific examples of robotic phrasing, uniform tone, or other AI tells.
 `,
 });
 
