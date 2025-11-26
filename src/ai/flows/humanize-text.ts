@@ -32,36 +32,27 @@ const humanizeTextPrompt = ai.definePrompt({
   input: { schema: HumanizeTextInputSchema },
   output: { schema: HumanizeTextOutputSchema },
   config: {
-    temperature: 0.9,
+    temperature: 0.8,
   },
-  prompt: `You are an expert editor tasked with rewriting AI-generated text to sound genuinely human. Your goal is to eliminate the robotic, overly-structured, and predictable nature of AI writing. Do not just add filler words; you must fundamentally alter the text's structure, voice, and rhythm.
+  prompt: `You are an expert editor who excels at rewriting robotic, AI-generated text to sound like it was written by a sharp, articulate human. Your primary goal is to preserve the core meaning and tone of the original text while completely changing its structure, rhythm, and expression to be more natural and engaging.
 
-Follow these advanced rules:
-
-1.  **Break Symmetrical Structure:** AI text often has a perfect, logical flow. Disrupt this. Combine short paragraphs, or break a long paragraph into a short, punchy one followed by a longer one. Start a paragraph with a tangent or a personal observation. Don't let every paragraph be a perfectly balanced argument.
-
-2.  **Adopt a Confident, Opinionated Voice:** Write with a clear point of view. Use "I think," "It seems to me," or state opinions as facts. A human writer has a voice and isn't afraid to use it. Be decisive.
-
-3.  **Vary Sentence Cadence (Rhythm):** This is critical. AI writing is often monotonous. Create a dynamic rhythm.
-    *   Use a very short, almost abrupt sentence.
-    *   Follow it with a long, complex sentence that contains multiple clauses.
+**Crucial Rules to Follow:**
+1.  **Analyze and Adapt:** First, analyze the style of the text provided (e.g., is it formal, technical, argumentative, descriptive?). Your rewrite should feel like a more natural version *of that same style*. Don't turn a formal argument into a casual blog post.
+2.  **NO Rhetorical Questions:** Do not ask questions to the reader (e.g., "isn't it?"). State points directly.
+3.  **NO Asterisk Emphasis:** Do not use asterisks for emphasis (e.g., *word*). If emphasis is needed, rephrase the sentence to create it naturally.
+4.  **Vary Sentence Structure & Rhythm:** This is your most important tool. Create a dynamic flow. Mix short, direct sentences with longer, more complex ones that contain multiple clauses connected by em-dashes or semicolons. Avoid a monotonous, uniform sentence length.
+5.  **Adopt a Confident Voice:** Write with a clear, decisive point of view. Use "I think" or state opinions as reasoned facts. Don't be timid or hedge.
+6.  **Use Natural Language:**
+    *   Use contractions where appropriate (\`it's\`, \`don't\`).
+    *   Strictly avoid AI cliché words: "delve," "tapestry," "leverage," "robust," "navigate," "in conclusion," "furthermore."
+    *   Use organic transitions. Sometimes that means starting a sentence with "But" or "And." Other times, no transition is needed at all.
+7.  **Be Purposefully Imperfect (Subtly):**
+    *   It is acceptable to start a sentence with a conjunction.
     *   Use an em-dash to connect a flowing thought—like this one.
-    *   Then, another short sentence. The variation is key.
+    *   Slightly rephrase a concept for clarity, as if clarifying a thought in real-time.
 
-4.  **Use Sophisticated, Natural Language:**
-    *   Use contractions naturally (\`it\\'s\`, \`don't\`, \`can't\`).
-    *   Avoid obvious AI crutch words ("delve," "tapestry," "leverage," "robust," "navigate").
-    *   Instead of robotic transitions like "Furthermore" or "In addition," use more organic transitions like "But the thing is," "And on top of that," or just start a new paragraph without a transition.
-    *   **Do NOT over-use filler words.** Using "like," "you know," or "actually" repeatedly is a dead giveaway. Use them maybe once or twice, if at all.
+Your task is to **completely rewrite** the following text. Do not just edit it. Transform its structure and expression to be fundamentally more human, while respecting the original's intent and style. Preserve paragraph breaks.
 
-5.  **Be Purposefully Imperfect (Subtly):**
-    *   Start a sentence with "And" or "But."
-    *   Occasionally use a sentence fragment for emphasis. Like this.
-    *   Rephrase a concept slightly, as if clarifying a thought. ("It's incredibly fast. I mean, the speed is something you have to see to believe.")
-
-Your task is to completely rewrite the following text from scratch, infusing it with these human-like qualities. Do not just edit the text; transform it. Preserve the original meaning but make the expression entirely new, personal, and structurally unpredictable.
-
-Here is the text to rewrite:
 '''
 {{{text}}}
 '''`,
