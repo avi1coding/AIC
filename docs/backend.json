@@ -1,0 +1,175 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account within the AI Homework Checker application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "creationDate": {
+          "type": "string",
+          "description": "The timestamp representing when the user was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "creationDate"
+      ]
+    },
+    "AnalysisRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AnalysisRequest",
+      "type": "object",
+      "description": "Represents a request to analyze homework content.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AnalysisRequest entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N AnalysisRequest)"
+        },
+        "contentType": {
+          "type": "string",
+          "description": "The type of content submitted for analysis (e.g., 'text', 'pdf', 'image')."
+        },
+        "content": {
+          "type": "string",
+          "description": "The actual homework content submitted for analysis."
+        },
+        "submissionDate": {
+          "type": "string",
+          "description": "The timestamp representing when the content was submitted for analysis.",
+          "format": "date-time"
+        },
+        "analysisMethod": {
+          "type": "string",
+          "description": "The method used to analyze the content."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "contentType",
+        "content",
+        "submissionDate",
+        "analysisMethod"
+      ]
+    },
+    "AnalysisResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AnalysisResult",
+      "type": "object",
+      "description": "Represents the results of an AI analysis performed on homework content.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AnalysisResult entity."
+        },
+        "analysisRequestId": {
+          "type": "string",
+          "description": "Reference to AnalysisRequest. (Relationship: AnalysisRequest 1:1 AnalysisResult)"
+        },
+        "aiDetectionScore": {
+          "type": "number",
+          "description": "A score indicating the likelihood that the homework was AI-generated."
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "The confidence score the AI model has about the aiDetectionScore."
+        },
+        "analysisDate": {
+          "type": "string",
+          "description": "The timestamp representing when the analysis was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "analysisRequestId",
+        "aiDetectionScore",
+        "confidenceScore",
+        "analysisDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user account information.  The userId is used for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/analysisRequests/{analysisRequestId}",
+        "definition": {
+          "entityName": "AnalysisRequest",
+          "schema": {
+            "$ref": "#/backend/entities/AnalysisRequest"
+          },
+          "description": "Stores analysis requests made by a user.  The userId and analysisRequestId are used for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "analysisRequestId",
+              "description": "The unique identifier for the analysis request."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/analysisRequests/{analysisRequestId}/analysisResult",
+        "definition": {
+          "entityName": "AnalysisResult",
+          "schema": {
+            "$ref": "#/backend/entities/AnalysisResult"
+          },
+          "description": "Stores the analysis result for a specific analysis request. The userId and analysisRequestId are used for path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "analysisRequestId",
+              "description": "The unique identifier for the analysis request."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to manage user accounts, analysis requests, and their corresponding results for the AI Homework Checker application. The structure prioritizes security, scalability, and ease of debugging by adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved by structuring data to avoid hierarchical `get()` calls in security rules. Instead, critical authorization data, such as the `userId`, is denormalized into child collections when needed.  This design ensures atomic operations and simplifies security rule logic. Structural Segregation is maintained by ensuring that each collection serves a specific purpose with homogeneous security requirements. Access Modeling follows consistent patterns: private user data is stored under `/users/{userId}`, and entities owned by a user (AnalysisRequests and AnalysisResults) are stored in subcollections to establish clear ownership. This approach directly translates into simple and robust security rules based on path-based ownership, thus facilitating QAPs, because list operations can be secured by simply verifying the `userId` in the path. Explicit State Modeling and Predictable Schema ensure data clarity and maintainability. The use of consistent naming conventions and structured data formats simplifies debugging and enhances the overall maintainability of the application."
+  }
+}

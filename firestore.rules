@@ -1,0 +1,164 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model. All data, including user profiles,
+ * analysis requests, and analysis results, is considered private. A user can only access the data
+ * associated with their own user ID.
+ *
+ * Data Structure: The data is organized hierarchically under the /users/{userId} path. Each user's
+ * analysis requests are stored in a subcollection, and the corresponding results are nested further down.
+ * This structure creates a clear, path-based ownership tree that simplifies security rules and avoids
+ * costly lookups.
+ *
+ * Key Security Decisions:
+ * - User Isolation: All access is restricted by the {userId} in the path. Users can never see or
+ *   interact with another user's data.
+ * - No Public Access: There are no publicly readable or writable collections. All access requires
+ *   user authentication.
+ * - User Enumeration Disabled: Listing documents in the top-level /users collection is explicitly
+ *   disallowed to prevent attackers from discovering user IDs.
+ * - Relational Integrity: On creation, documents must contain an ID field (e.g., `userId`, `analysisRequestId`)
+ *   that matches the ID in their path, ensuring data consistency. These IDs are immutable once set.
+ *
+ * Denormalization for Authorization: The data structure inherently supports this principle. By nesting
+ * user-specific data like `analysisRequests` under the `/users/{userId}` path, the user's ID is always
+ * available in the path for authorization checks. This avoids the need for `get()` calls to other
+ * documents, leading to faster and more reliable security rules.
+ *
+ * Structural Segregation: The design uses separate collections and subcollections for distinct data types
+ * (users, requests, results), ensuring that a single rule block applies to a uniform set of documents
+ * with the same security requirements.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /*********************************************************************
+     * Helper Functions
+     *********************************************************************/
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the fundamental check for data ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks for ownership on an existing document.
+     * Used for update and delete operations to prevent modifying non-existent data.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates a new user document on creation.
+     * Ensures the document's internal 'id' field matches its path ID.
+     */
+    function isNewUserDocumentValid(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Validates a user document on update.
+     * Enforces the immutability of the document's internal 'id'.
+     */
+    function isUserDocumentUpdateValid() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates a new analysis request document on creation.
+     * Ensures the request's internal 'userId' field matches the user's path ID.
+     */
+    function isNewAnalysisRequestValid(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Validates an analysis request document on update.
+     * Enforces the immutability of the request's internal 'userId'.
+     */
+    function isAnalysisRequestUpdateValid() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * Validates a new analysis result document on creation.
+     * Ensures the result's internal 'analysisRequestId' matches its parent's path ID.
+     */
+    function isNewAnalysisResultValid(analysisRequestId) {
+      return request.resource.data.analysisRequestId == analysisRequestId;
+    }
+
+    /**
+     * Validates an analysis result document on update.
+     * Enforces the immutability of the result's internal 'analysisRequestId'.
+     */
+    function isAnalysisResultUpdateValid() {
+      return request.resource.data.analysisRequestId == resource.data.analysisRequestId;
+    }
+
+
+    /*********************************************************************
+     * Collection Rules
+     *********************************************************************/
+
+    /**
+     * @description Manages user profile documents. A user can create their own profile,
+     *   and can read, update, or delete it thereafter. Listing users is forbidden.
+     * @path /users/{userId}
+     * @allow (create) A new user with auth.uid 'user123' creating their document at /users/user123.
+     * @deny (get) User 'user456' trying to read the document at /users/user123.
+     * @deny (list) Any user trying to list all documents in the /users collection.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isNewUserDocumentValid(userId);
+      allow update: if isExistingOwner(userId) && isUserDocumentUpdateValid();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages a user's private analysis requests. Only the owner can
+     *   create, read, list, update, or delete their own requests.
+     * @path /users/{userId}/analysisRequests/{analysisRequestId}
+     * @allow (create) User 'user123' creating a new request at /users/user123/analysisRequests/req_abc.
+     * @allow (list) User 'user123' listing all documents in their /users/user123/analysisRequests collection.
+     * @deny (get) User 'user456' trying to read a request at /users/user123/analysisRequests/req_abc.
+     * @principle Enforces strict document ownership within a user's private subcollection.
+     */
+    match /users/{userId}/analysisRequests/{analysisRequestId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isNewAnalysisRequestValid(userId);
+      allow update: if isExistingOwner(userId) && isAnalysisRequestUpdateValid();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages the result of a specific analysis request. Access is granted only
+     *   to the user who owns the parent request.
+     * @path /users/{userId}/analysisRequests/{analysisRequestId}/analysisResults/{analysisResultId}
+     * @allow (get) User 'user123' reading a result at /users/user123/analysisRequests/req_abc/analysisResults/res_xyz.
+     * @deny (create) User 'user456' trying to create a result under another user's request.
+     * @principle Inherits ownership from the parent document path, ensuring data privacy deep in the hierarchy.
+     */
+    match /users/{userId}/analysisRequests/{analysisRequestId}/analysisResults/{analysisResultId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isNewAnalysisResultValid(analysisRequestId);
+      allow update: if isExistingOwner(userId) && isAnalysisResultUpdateValid();
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
