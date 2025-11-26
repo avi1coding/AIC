@@ -15,10 +15,6 @@ import { Menu, BrainCircuit, ChevronDown } from 'lucide-react';
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const mainLinks = [
-    { href: '/humanizer', label: 'Humanizer' },
-  ];
-
   const navLinks = [
     { href: '#', label: 'Pricing' },
     { href: '/about', label: 'About' },
