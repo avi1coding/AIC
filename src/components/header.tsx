@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -16,7 +17,7 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '#', label: 'Pricing' },
+    { href: '/pricing', label: 'Pricing' },
     { href: '/about', label: 'About' },
   ];
 
