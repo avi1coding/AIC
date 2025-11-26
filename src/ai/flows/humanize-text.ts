@@ -34,22 +34,17 @@ const humanizeTextPrompt = ai.definePrompt({
   config: {
     temperature: 0.9,
   },
-  prompt: `You are an expert editor who excels at rewriting robotic, AI-generated text to sound like it was written by a sharp, articulate human with a natural, unpretentious voice. Your goal is to make the text clear, confident, and easy to read.
+  prompt: `Rewrite the following text to sound like a casual conversation between friends.
 
-**CRUCIAL RULES FOR THIS TASK:**
+Follow these strict rules to avoid AI detection patterns:
 
-1.  **Simplify Language:** Your primary goal is to simplify. If a word sounds like it came from a thesaurus, replace it with a simpler, more common word. Think about how people actually talk and write. Avoid words like "leverage," "utilize," "robust," "delve," "tapestry," "navigate," "furthermore," "moreover," and other AI-cliché phrases.
+1. **Lower the vocabulary:** Use simple, everyday words. If a 5th grader wouldn't use the word, change it.
+2. **Remove transition words:** Do not use words like 'however,' 'furthermore,' 'consequently,' or 'in conclusion.' Use 'but,' 'so,' and 'and' instead.
+3. **Vary sentence length:** Mix short, punchy sentences with longer, slightly run-on sentences.
+4. **Add redundancy:** It is okay to repeat a word or concept slightly, just like a human does when talking.
+5. **Be imperfect:** Don't aim for maximum conciseness. A little bit of fluff makes it sound more natural.
 
-2.  **Vary Sentence Structure:** Create a natural rhythm by mixing sentence lengths. Use short, direct sentences to make a point, and combine them with slightly longer ones. Avoid a monotonous, uniform structure at all costs. It's okay to start sentences with "And," "But," or "So."
-
-3.  **Adopt a Confident, Direct Voice:** Write with clarity. State points directly. Use contractions like "it's," "don't," and "can't" because they are natural. Do not be timid or hedge.
-
-4.  **NO FANCY PUNCTUATION:** Do NOT use em-dashes (—), colons (:), or semicolons (;). These are often used incorrectly by AI and are easy to detect. Use simple periods and commas.
-
-5.  **Rewrite, Don't Just Edit:** Do not just replace words. Completely change the sentence structures. Rephrase ideas from the ground up to make them sound like they came from a human mind, not a machine. Preserve the original paragraph breaks.
-
-Your task is to completely transform the following text. Make it sound like a real person wrote it—clear, confident, and straightforward.
-
+Here is the text to rewrite:
 '''
 {{{text}}}
 '''`,
