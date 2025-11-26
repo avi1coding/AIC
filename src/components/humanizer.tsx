@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -6,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Copy, Check } from 'lucide-react';
+import { Loader2, Copy, Check, Lock } from 'lucide-react';
 import { humanizeTextAction } from '@/app/actions';
+import { useUser } from '@/firebase';
 
 export function Humanizer() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,9 +17,21 @@ export function Humanizer() {
   const [humanizedText, setHumanizedText] = useState('');
   const [hasCopied, setHasCopied] = useState(false);
   const { toast } = useToast();
+  const { user } = useUser();
+
+  const isButtonDisabled = !user || isLoading;
 
   const handleHumanizeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'You need to be logged in to use this feature.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (originalText.trim().length < 20) {
       toast({
         title: 'Text is too short',
@@ -95,7 +109,11 @@ export function Humanizer() {
                   onClick={handleCopy}
                   type="button"
                 >
-                  {hasCopied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                  {hasCopied ? (
+                    <Check className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <Copy className="w-5 h-5" />
+                  )}
                   <span className="sr-only">Copy to clipboard</span>
                 </Button>
               )}
@@ -103,8 +121,22 @@ export function Humanizer() {
           </Card>
         </div>
         <div className="mt-6">
-          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-            {isLoading ? <Loader2 className="animate-spin" /> : 'Humanize Text'}
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            disabled={isButtonDisabled}
+          >
+            {isLoading ? (
+              <Loader2 className="animate-spin" />
+            ) : !user ? (
+              <>
+                <Lock className="mr-2 h-4 w-4" />
+                Log in to Humanize
+              </>
+            ) : (
+              'Humanize Text'
+            )}
           </Button>
         </div>
       </form>
