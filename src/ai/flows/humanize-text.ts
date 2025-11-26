@@ -1,15 +1,19 @@
 'use server';
 
 /**
- * @fileOverview AI-powered text humanizer.
+ * @fileOverview An AI-powered text humanizer.
  *
- * - humanizeText - Rewrites text to sound more human-like.
- * - HumanizeTextInput - The input type for the humanizeText function.
- * - HumanizeTextOutput - The return type for the humanizeText function.
+ * This flow takes text and rewrites it to sound less like it was written by an AI.
+ * It focuses on using simpler language, varying sentence structure, and avoiding
+ * common AI writing patterns.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
 
 const HumanizeTextInputSchema = z.object({
   text: z.string().describe('The text to be rewritten to sound more human.'),
@@ -21,36 +25,42 @@ const HumanizeTextOutputSchema = z.object({
 });
 export type HumanizeTextOutput = z.infer<typeof HumanizeTextOutputSchema>;
 
-export async function humanizeText(
-  input: HumanizeTextInput
-): Promise<HumanizeTextOutput> {
-  return humanizeTextFlow(input);
-}
+// ============================================================================
+// Main Humanization Flow
+// ============================================================================
 
-const humanizeTextPrompt = ai.definePrompt({
-  name: 'humanizeTextPrompt',
+const humanizePrompt = ai.definePrompt({
+  name: 'humanizePrompt',
   input: { schema: HumanizeTextInputSchema },
   output: { schema: HumanizeTextOutputSchema },
   config: {
-    temperature: 0.8,
+    temperature: 0.9,
   },
-  prompt: `Rewrite the following text to sound like a natural, human-written essay.
+  prompt: `You are a writing assistant. Your only job is to rewrite the given text so it sounds more natural and human. Follow these rules strictly:
 
-Follow these strict rules to avoid AI detection patterns:
+**Core Rules:**
+1.  **Use Simple Words:** Replace complex vocabulary with simple, everyday words. If a word sounds too academic, change it. For example, instead of "utilize," say "use." Instead of "consequently," say "so."
+2.  **Vary Sentence Length:** Mix short, direct sentences with slightly longer ones. Avoid writing long, perfect paragraphs. It's okay if it sounds a little choppy.
+3.  **Be Direct:** Get straight to the point. Remove unnecessary politeness and formal phrases.
+4.  **Use Active Voice:** Rewrite sentences to be in the active voice. Instead of "The ball was hit by him," say "He hit the ball."
+5.  **Use Contractions:** Use contractions like "it's," "don't," and "you're."
 
-1.  **Use Simpler Vocabulary:** Use clear, everyday words. If a 5th grader wouldn't use the word, change it. Avoid overly academic or complex terms.
-2.  **Use Simple Transitions:** Do not use robotic transition words like 'however,' 'furthermore,' 'consequently,' or 'in conclusion.' Use simpler, more natural connectors like 'but,' 'so,' and 'and' when needed, or just start a new paragraph.
-3.  **Vary Sentence Length:** Mix short, direct sentences with slightly longer, more flowing sentences to create a natural rhythm.
-4.  **Be Natural, Not "Casually" Forced:** The goal is to sound like a good human writer, not like you are forcing a casual tone.
-    *   **Do NOT add questions.** Do not ask rhetorical questions.
-    *   **Do NOT add conversational filler.** Avoid adding phrases like "you know," "like," or "I mean."
-    *   **Do NOT directly address the reader.**
-5.  **Be Imperfectly Natural:** Don't aim for maximum conciseness. A little bit of natural redundancy or slightly less-than-perfect phrasing is more human. For example, it's okay to repeat a word or concept if it feels natural.
+**What to AVOID at all costs:**
+*   **DO NOT** use fancy transition words like "Moreover," "Furthermore," "In addition," "Thus," "However." Use "But," "So," or "And" instead, or just start a new sentence.
+*   **DO NOT** use common AI cliché words like: "delve," "tapestry," "robust," "leverage," "navigate," "unlock," "unleash," "game-changer."
+*   **DO NOT** ask questions to the reader.
+*   **DO NOT** use asterisks or other markdown for emphasis.
+*   **DO NOT** sound like a friendly assistant. Just rewrite the text.
 
-Here is the text to rewrite:
+Here is the text you need to rewrite. Apply all the rules above.
+
+**Original Text:**
 '''
 {{{text}}}
-'''`,
+'''
+
+**Your Rewritten Text (humanizedText):**
+`,
 });
 
 const humanizeTextFlow = ai.defineFlow(
@@ -60,7 +70,31 @@ const humanizeTextFlow = ai.defineFlow(
     outputSchema: HumanizeTextOutputSchema,
   },
   async (input) => {
-    const { output } = await humanizeTextPrompt(input);
-    return output!;
+    // Return early if the text is too short to process.
+    if (input.text.trim().split(/\s+/).length < 5) {
+      return { humanizedText: input.text };
+    }
+    
+    try {
+      const { output } = await humanizePrompt(input);
+      if (!output) {
+        throw new Error('The AI model did not return a valid output.');
+      }
+      return output;
+    } catch (error) {
+      console.error('An error occurred during the humanization flow:', error);
+      // As a fallback, return the original text if the flow fails.
+      return { humanizedText: input.text };
+    }
   }
 );
+
+// ============================================================================
+// Exported Function
+// ============================================================================
+
+export async function humanizeText(
+  input: HumanizeTextInput
+): Promise<HumanizeTextOutput> {
+  return humanizeTextFlow(input);
+}
