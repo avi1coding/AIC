@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Copy, Check, Lock } from 'lucide-react';
-import { humanizeTextAction } from '@/app/actions';
+import { humanizeTextAction, checkAndIncrementUsage } from '@/app/actions';
 import { useUser } from '@/firebase';
+import Link from 'next/link';
 
 export function Humanizer() {
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +44,30 @@ export function Humanizer() {
     setIsLoading(true);
     setHumanizedText('');
     try {
+       // Check usage limit first
+       const usageCheck = await checkAndIncrementUsage(user.uid);
+       if (!usageCheck.isAllowed) {
+         toast({
+           title: 'Daily Limit Reached',
+           description: usageCheck.message,
+           variant: 'destructive',
+           action: (
+            <Button asChild>
+              <Link href="/pricing">Upgrade</Link>
+            </Button>
+          ),
+         });
+         setIsLoading(false);
+         return;
+       }
+
+       if(usageCheck.remainingUses !== undefined) {
+        toast({
+         title: 'Usage Recorded',
+         description: `You have ${usageCheck.remainingUses} free uses remaining today.`,
+       });
+     }
+
       const result = await humanizeTextAction(originalText);
       setHumanizedText(result.humanizedText);
     } catch (error) {

@@ -19,6 +19,20 @@
           "type": "string",
           "description": "The timestamp representing when the user was created.",
           "format": "date-time"
+        },
+        "subscriptionTier": {
+          "type": "string",
+          "description": "The user's subscription plan.",
+          "enum": ["free", "monthly", "yearly", "lifetime"],
+          "default": "free"
+        },
+        "usageCount": {
+          "type": "number",
+          "description": "Number of times the user has used an AI feature today."
+        },
+        "lastUsageDate": {
+          "type": "string",
+          "description": "The date of the user's last AI feature usage (YYYY-MM-DD)."
         }
       },
       "required": [

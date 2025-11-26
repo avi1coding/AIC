@@ -25,9 +25,11 @@ import { AnalysisResult } from '@/components/analysis-result';
 import {
   analyzeTextAction,
   analyzeFileAction,
+  checkAndIncrementUsage,
   type AnalysisResultData,
 } from '@/app/actions';
 import { useUser } from '@/firebase';
+import Link from 'next/link';
 
 type AnalysisType = 'text' | 'pdf' | 'image';
 
@@ -69,7 +71,33 @@ export function HomeworkChecker() {
 
     setIsLoading(true);
     setResult(null);
+
     try {
+      // Check usage limit first
+      const usageCheck = await checkAndIncrementUsage(user.uid);
+      if (!usageCheck.isAllowed) {
+        toast({
+          title: 'Daily Limit Reached',
+          description: usageCheck.message,
+          variant: 'destructive',
+          action: (
+            <Button asChild>
+              <Link href="/pricing">Upgrade</Link>
+            </Button>
+          ),
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      if(usageCheck.remainingUses !== undefined) {
+         toast({
+          title: 'Usage Recorded',
+          description: `You have ${usageCheck.remainingUses} free uses remaining today.`,
+        });
+      }
+
+      // If allowed, proceed with analysis
       const analysisResult = await analysisFn();
       setResult(analysisResult);
     } catch (error) {
