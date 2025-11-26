@@ -32,17 +32,20 @@ const humanizeTextPrompt = ai.definePrompt({
   input: { schema: HumanizeTextInputSchema },
   output: { schema: HumanizeTextOutputSchema },
   config: {
-    temperature: 0.9,
+    temperature: 0.8,
   },
-  prompt: `Rewrite the following text to sound like a casual conversation between friends.
+  prompt: `Rewrite the following text to sound like a natural, human-written essay.
 
 Follow these strict rules to avoid AI detection patterns:
 
-1. **Lower the vocabulary:** Use simple, everyday words. If a 5th grader wouldn't use the word, change it.
-2. **Remove transition words:** Do not use words like 'however,' 'furthermore,' 'consequently,' or 'in conclusion.' Use 'but,' 'so,' and 'and' instead.
-3. **Vary sentence length:** Mix short, punchy sentences with longer, slightly run-on sentences.
-4. **Add redundancy:** It is okay to repeat a word or concept slightly, just like a human does when talking.
-5. **Be imperfect:** Don't aim for maximum conciseness. A little bit of fluff makes it sound more natural.
+1.  **Use Simpler Vocabulary:** Use clear, everyday words. If a 5th grader wouldn't use the word, change it. Avoid overly academic or complex terms.
+2.  **Use Simple Transitions:** Do not use robotic transition words like 'however,' 'furthermore,' 'consequently,' or 'in conclusion.' Use simpler, more natural connectors like 'but,' 'so,' and 'and' when needed, or just start a new paragraph.
+3.  **Vary Sentence Length:** Mix short, direct sentences with slightly longer, more flowing sentences to create a natural rhythm.
+4.  **Be Natural, Not "Casually" Forced:** The goal is to sound like a good human writer, not like you are forcing a casual tone.
+    *   **Do NOT add questions.** Do not ask rhetorical questions.
+    *   **Do NOT add conversational filler.** Avoid adding phrases like "you know," "like," or "I mean."
+    *   **Do NOT directly address the reader.**
+5.  **Be Imperfectly Natural:** Don't aim for maximum conciseness. A little bit of natural redundancy or slightly less-than-perfect phrasing is more human. For example, it's okay to repeat a word or concept if it feels natural.
 
 Here is the text to rewrite:
 '''
