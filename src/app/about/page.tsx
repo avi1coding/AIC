@@ -2,8 +2,8 @@ import { BrainCircuit, Users, Goal } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'About | AI Homework Checker',
-  description: 'Learn more about the AI Homework Checker application.',
+  title: 'About | Artificial Intelligence Checker',
+  description: 'Learn more about the Artificial Intelligence Checker application.',
 };
 
 export default function AboutPage() {
@@ -14,7 +14,7 @@ export default function AboutPage() {
           <div className="inline-flex items-center gap-4 mb-4">
             <BrainCircuit className="w-10 h-10 md:w-12 md:h-12 text-primary" />
             <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tighter">
-              About AI Homework Checker
+              About Artificial Intelligence Checker
             </h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -30,7 +30,7 @@ export default function AboutPage() {
                 <h2 className="text-2xl font-bold font-headline">Our Purpose</h2>
               </div>
               <p className="text-muted-foreground">
-                As AI writing tools become more accessible, it's harder to distinguish between original work and AI-generated content. We built the AI Homework Checker to give educators a fighting chance. Our advanced algorithm analyzes text, PDFs, and even images to detect the subtle patterns of AI writing, providing a confidence score and a clear explanation of its findings.
+                As AI writing tools become more accessible, it's harder to distinguish between original work and AI-generated content. We built the Artificial Intelligence Checker to give educators a fighting chance. Our advanced algorithm analyzes text, PDFs, and even images to detect the subtle patterns of AI writing, providing a confidence score and a clear explanation of its findings.
               </p>
             </div>
             <div>
@@ -49,7 +49,7 @@ export default function AboutPage() {
                   “Our goal isn't to punish, but to open a dialogue about AI's role in education. This tool is the first step in that conversation.”
                 </blockquote>
                 <footer className="mt-4">
-                  <p className="font-semibold text-primary">— The AI Checker Team</p>
+                  <p className="font-semibold text-primary">— The AIC Team</p>
                 </footer>
             </div>
           </div>

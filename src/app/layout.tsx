@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'AI Homework Checker',
+  title: 'Artificial Intelligence Checker',
   description: 'Check if homework was written with AI',
 };
 

@@ -10,7 +10,7 @@ export default function Home() {
           <div className="inline-flex items-center gap-4 mb-4">
             <BrainCircuit className="w-10 h-10 md:w-12 md:h-12 text-primary" />
             <h1 className="text-3xl md:text-5xl font-bold font-headline tracking-tighter">
-              AI Homework Checker
+              Artificial Intelligence Checker
             </h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
