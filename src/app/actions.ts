@@ -5,8 +5,10 @@ import { analyzeHomeworkText } from '@/ai/flows/analyze-homework-text';
 import { detectAIGeneratedContentInPDF } from '@/ai/flows/detect-ai-generated-content-pdf';
 import { aiTestFlow } from '@/ai/flows/ai-test-flow';
 import { humanizeText } from '@/ai/flows/humanize-text';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, increment } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase/index';
+import { firebaseConfig } from '@/firebase/config';
+import admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
+
 
 export type AnalysisResultData = {
   isAiGenerated: boolean;
@@ -21,25 +23,39 @@ const getTodayDateString = () => {
   return new Date().toISOString().split('T')[0];
 };
 
+function initializeAdminApp() {
+    if (admin.apps.length > 0) {
+        return admin.app();
+    }
+    
+    // Note: The `GOOGLE_APPLICATION_CREDENTIALS` environment variable
+    // is automatically set by Firebase App Hosting.
+    return admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        projectId: firebaseConfig.projectId,
+    });
+}
+
 /**
  * Checks and updates the user's API usage.
  * @param userId - The ID of the user to check.
  * @returns {Promise<{isAllowed: boolean; message: string; remainingUses?: number}>}
  */
 export async function checkAndIncrementUsage(userId: string): Promise<{isAllowed: boolean; message: string; remainingUses?: number}> {
-  const { firestore } = initializeFirebase();
-  const userRef = doc(firestore, 'users', userId);
+  const app = initializeAdminApp();
+  const firestore = app.firestore();
+  const userRef = firestore.collection('users').doc(userId);
 
   try {
-    const userDoc = await getDoc(userRef);
+    const userDoc = await userRef.get();
 
-    if (!userDoc.exists()) {
+    if (!userDoc.exists) {
       // This case should ideally not happen for a logged-in user
       // but we handle it just in case.
-      await setDoc(userRef, {
+      await userRef.set({
         id: userId,
         email: 'unknown', // This should be updated on user creation
-        creationDate: serverTimestamp(),
+        creationDate: FieldValue.serverTimestamp(),
         subscriptionTier: 'free',
         usageCount: 1,
         lastUsageDate: getTodayDateString(),
@@ -47,7 +63,7 @@ export async function checkAndIncrementUsage(userId: string): Promise<{isAllowed
       return { isAllowed: true, message: 'Usage recorded.', remainingUses: FREE_TIER_DAILY_LIMIT - 1 };
     }
 
-    const userData = userDoc.data();
+    const userData = userDoc.data()!;
     const { subscriptionTier = 'free', usageCount = 0, lastUsageDate } = userData;
 
     // Paid users have unlimited access
@@ -59,7 +75,7 @@ export async function checkAndIncrementUsage(userId: string): Promise<{isAllowed
 
     // If last usage was before today, reset the counter
     if (lastUsageDate !== today) {
-      await setDoc(userRef, { usageCount: 1, lastUsageDate: today }, { merge: true });
+      await userRef.update({ usageCount: 1, lastUsageDate: today });
       return { isAllowed: true, message: 'First use of the day. Usage recorded.', remainingUses: FREE_TIER_DAILY_LIMIT - 1 };
     }
 
@@ -69,7 +85,7 @@ export async function checkAndIncrementUsage(userId: string): Promise<{isAllowed
     }
 
     // Increment the usage count for today
-    await setDoc(userRef, { usageCount: increment(1) }, { merge: true });
+    await userRef.update({ usageCount: FieldValue.increment(1) });
     return { isAllowed: true, message: 'Usage recorded.', remainingUses: FREE_TIER_DAILY_LIMIT - (usageCount + 1) };
 
   } catch (error) {
