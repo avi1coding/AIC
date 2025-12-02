@@ -38,24 +38,45 @@ export function LoginDialog({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      initiateEmailSignIn(auth, email, password);
+
+    const onError = (error: any) => {
+      console.error('Login error:', error);
+      let description = 'An unknown error occurred.';
+      // Firebase auth errors have a 'code' property
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+          case 'auth/invalid-credential':
+            description = 'Username or password is incorrect or user is not found.';
+            break;
+          default:
+            description = error.message;
+            break;
+        }
+      } else if (error instanceof Error) {
+        description = error.message;
+      }
+      
+      toast({
+        title: 'Login Failed',
+        description: description,
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+    };
+    
+    const onSuccess = () => {
       toast({
         title: 'Login Successful',
         description: "You're now logged in.",
       });
       onClose();
-    } catch (error) {
-      console.error('Login error:', error);
-      toast({
-        title: 'Login Failed',
-        description:
-          error instanceof Error ? error.message : 'An unknown error occurred.',
-        variant: 'destructive',
-      });
-    } finally {
       setIsLoading(false);
     }
+
+    // Pass success and error callbacks to the sign-in function
+    initiateEmailSignIn(auth, email, password, onSuccess, onError);
   };
 
   return (
