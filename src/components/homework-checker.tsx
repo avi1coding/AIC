@@ -14,13 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Loader2,
-  FileText,
-  UploadCloud,
-  Image as ImageIcon,
-  Lock,
-} from 'lucide-react';
+import { Loader2, FileText, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { AnalysisResult } from '@/components/analysis-result';
 import {
   analyzeTextAction,
@@ -28,7 +22,9 @@ import {
   checkAndIncrementUsage,
   type AnalysisResultData,
 } from '@/app/actions';
-import { useUser } from '@/firebase';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
+import { ToolLock } from '@/components/tool-lock';
+import { LoginDialog } from '@/components/login-dialog';
 import Link from 'next/link';
 
 type AnalysisType = 'text' | 'pdf' | 'image';
@@ -46,24 +42,26 @@ export function HomeworkChecker() {
   const [activeTab, setActiveTab] = useState<AnalysisType>('text');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResultData | null>(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user } = useLocalAuth();
 
   const [textValue, setTextValue] = useState('');
   const [fileValue, setFileValue] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
 
-  const isButtonDisabled = !user || isLoading;
+  const isButtonDisabled = isLoading || !user;
 
   const handleSubmit = async (
     e: React.FormEvent,
     analysisFn: () => Promise<AnalysisResultData>
   ) => {
     e.preventDefault();
+    
     if (!user) {
       toast({
         title: 'Authentication Required',
-        description: 'You need to be logged in to use this feature.',
+        description: 'Please log in to use this feature.',
         variant: 'destructive',
       });
       return;
@@ -74,7 +72,7 @@ export function HomeworkChecker() {
 
     try {
       // Check usage limit first
-      const usageCheck = await checkAndIncrementUsage(user.uid);
+      const usageCheck = await checkAndIncrementUsage(user.username);
       if (!usageCheck.isAllowed) {
         toast({
           title: 'Daily Limit Reached',
@@ -198,10 +196,6 @@ export function HomeworkChecker() {
         <Button type="submit" className="w-full" disabled={isButtonDisabled}>
           {isLoading ? (
             <Loader2 className="animate-spin" />
-          ) : !user ? (
-            <>
-              <Lock className="mr-2 h-4 w-4" /> Log in to Analyze
-            </>
           ) : (
             'Analyze File'
           )}
@@ -211,8 +205,10 @@ export function HomeworkChecker() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <Card>
+    <>
+    <ToolLock onUnlock={() => setIsLoginOpen(true)}>
+      <div className="max-w-2xl mx-auto">
+        <Card>
         <CardHeader className="p-0">
           <Tabs
             value={activeTab}
@@ -257,10 +253,6 @@ export function HomeworkChecker() {
                   >
                     {isLoading ? (
                       <Loader2 className="animate-spin" />
-                    ) : !user ? (
-                      <>
-                        <Lock className="mr-2 h-4 w-4" /> Log in to Analyze
-                      </>
                     ) : (
                       'Analyze Text'
                     )}
@@ -279,5 +271,20 @@ export function HomeworkChecker() {
       </Card>
       {result && <AnalysisResult {...result} />}
     </div>
+    </ToolLock>
+    <LoginDialog
+      isOpen={isLoginOpen}
+      onClose={() => {
+        setIsLoginOpen(false);
+        // Small delay to allow auth state to update
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }}
+      onSwitchToSignup={() => {
+        setIsLoginOpen(false);
+      }}
+    />
+    </>
   );
 }

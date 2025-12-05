@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -14,8 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Menu, BrainCircuit, ChevronDown, UserCircle } from 'lucide-react';
-import { useUser } from '@/firebase';
-import { getAuth, signOut } from 'firebase/auth';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 import { LoginDialog } from './login-dialog';
 import { SignupDialog } from './signup-dialog';
 
@@ -23,16 +21,12 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
-  const { user, isUserLoading } = useUser();
-  const auth = getAuth();
-
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
+  const { user, isLoading, logout } = useLocalAuth();
 
   const navLinks = [
     { href: '/pricing', label: 'Pricing' },
     { href: '/about', label: 'About' },
+    { href: '/contact', label: 'Contact' }, // Added Contact link
   ];
 
   return (
@@ -71,7 +65,7 @@ export function Header() {
             ))}
           </nav>
           <div className="hidden md:flex items-center gap-4">
-            {isUserLoading ? (
+            {isLoading ? (
               <div className="h-10 w-24 bg-muted rounded-md animate-pulse" />
             ) : user ? (
               <DropdownMenu>
@@ -85,7 +79,7 @@ export function Header() {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={logout}>
                     Log Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -149,7 +143,7 @@ export function Header() {
                   </div>
                   <div className="mt-auto p-6 flex flex-col gap-4">
                     {user ? (
-                      <Button onClick={handleLogout} className="w-full">
+                      <Button onClick={logout} className="w-full">
                         Log Out
                       </Button>
                     ) : (

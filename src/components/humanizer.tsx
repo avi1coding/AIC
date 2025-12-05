@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Copy, Check, Lock } from 'lucide-react';
+import { Loader2, Copy, Check } from 'lucide-react';
 import { humanizeTextAction, checkAndIncrementUsage } from '@/app/actions';
-import { useUser } from '@/firebase';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
+import { ToolLock } from '@/components/tool-lock';
+import { LoginDialog } from '@/components/login-dialog';
 import Link from 'next/link';
 
 export function Humanizer() {
@@ -17,17 +19,19 @@ export function Humanizer() {
   const [originalText, setOriginalText] = useState('');
   const [humanizedText, setHumanizedText] = useState('');
   const [hasCopied, setHasCopied] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user } = useLocalAuth();
 
-  const isButtonDisabled = !user || isLoading;
+  const isButtonDisabled = isLoading || !user;
 
   const handleHumanizeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!user) {
       toast({
         title: 'Authentication Required',
-        description: 'You need to be logged in to use this feature.',
+        description: 'Please log in to use this feature.',
         variant: 'destructive',
       });
       return;
@@ -45,7 +49,7 @@ export function Humanizer() {
     setHumanizedText('');
     try {
        // Check usage limit first
-       const usageCheck = await checkAndIncrementUsage(user.uid);
+       const usageCheck = await checkAndIncrementUsage(user.username);
        if (!usageCheck.isAllowed) {
          toast({
            title: 'Daily Limit Reached',
@@ -89,7 +93,9 @@ export function Humanizer() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <>
+    <ToolLock onUnlock={() => setIsLoginOpen(true)}>
+      <div className="max-w-4xl mx-auto">
       <form onSubmit={handleHumanizeSubmit}>
         <div className="grid md:grid-cols-2 gap-8">
           <Card>
@@ -154,11 +160,6 @@ export function Humanizer() {
           >
             {isLoading ? (
               <Loader2 className="animate-spin" />
-            ) : !user ? (
-              <>
-                <Lock className="mr-2 h-4 w-4" />
-                Log in to Humanize
-              </>
             ) : (
               'Humanize Text'
             )}
@@ -166,5 +167,20 @@ export function Humanizer() {
         </div>
       </form>
     </div>
+    </ToolLock>
+    <LoginDialog
+      isOpen={isLoginOpen}
+      onClose={() => {
+        setIsLoginOpen(false);
+        // Small delay to allow auth state to update
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }}
+      onSwitchToSignup={() => {
+        setIsLoginOpen(false);
+      }}
+    />
+    </>
   );
 }

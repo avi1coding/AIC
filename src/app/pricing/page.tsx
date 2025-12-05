@@ -1,4 +1,3 @@
-
 import { Check, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -79,10 +78,8 @@ export default function PricingPage() {
               className={cn('flex flex-col', tier.popular && 'border-primary shadow-lg')}
             >
               {tier.popular && (
-                <div className="absolute -top-3 right-4 bg-primary text-primary-foreground px-3 py-1 text-sm font-semibold rounded-full flex items-center gap-1">
-                  <Star className="w-4 h-4" />
-                  Most Popular
-                </div>
+                // Removed the 'Most Popular' badge
+                null
               )}
               <CardHeader>
                 <CardTitle className="font-headline">{tier.name}</CardTitle>

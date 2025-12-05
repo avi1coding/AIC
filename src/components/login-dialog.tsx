@@ -15,8 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { initiateEmailSignIn } from '@/firebase';
-import { useAuth } from '@/firebase';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -29,54 +28,36 @@ export function LoginDialog({
   onClose,
   onSwitchToSignup,
 }: LoginDialogProps) {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const auth = useAuth();
+  const { login } = useLocalAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const onError = (error: any) => {
-      console.error('Login error:', error);
-      let description = 'An unknown error occurred.';
-      // Firebase auth errors have a 'code' property
-      if (error.code) {
-        switch (error.code) {
-          case 'auth/user-not-found':
-          case 'auth/wrong-password':
-          case 'auth/invalid-credential':
-            description = 'Username or password is incorrect or user is not found.';
-            break;
-          default:
-            description = error.message;
-            break;
-        }
-      } else if (error instanceof Error) {
-        description = error.message;
-      }
-      
-      toast({
-        title: 'Login Failed',
-        description: description,
-        variant: 'destructive',
-      });
-      setIsLoading(false);
-    };
-    
-    const onSuccess = () => {
+    try {
+      await login(username, password);
       toast({
         title: 'Login Successful',
         description: "You're now logged in.",
       });
       onClose();
+      setUsername('');
+      setPassword('');
+    } catch (error) {
+      console.error('Login error:', error);
+      const description = error instanceof Error ? error.message : 'An unknown error occurred.';
+      toast({
+        title: 'Login Failed',
+        description: description,
+        variant: 'destructive',
+      });
+    } finally {
       setIsLoading(false);
     }
-
-    // Pass success and error callbacks to the sign-in function
-    initiateEmailSignIn(auth, email, password, onSuccess, onError);
   };
 
   return (
@@ -91,14 +72,14 @@ export function LoginDialog({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email-login" className="text-right">
-                Email
+              <Label htmlFor="username-login" className="text-right">
+                Username
               </Label>
               <Input
-                id="email-login"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username-login"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="col-span-3"
                 required
               />

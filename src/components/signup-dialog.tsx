@@ -15,8 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { initiateEmailSignUp } from '@/firebase';
-import { useAuth } from '@/firebase';
+import { useLocalAuth } from '@/hooks/useLocalAuth';
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -29,12 +28,12 @@ export function SignupDialog({
   onClose,
   onSwitchToLogin,
 }: SignupDialogProps) {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const auth = useAuth();
+  const { signup } = useLocalAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,12 +46,15 @@ export function SignupDialog({
     }
     setIsLoading(true);
     try {
-      initiateEmailSignUp(auth, email, password);
+      await signup(username, password);
       toast({
         title: 'Signup Successful',
         description: 'Your account has been created.',
       });
       onClose();
+      setUsername('');
+      setPassword('');
+      setConfirmPassword('');
     } catch (error) {
       console.error('Signup error:', error);
       toast({
@@ -78,14 +80,14 @@ export function SignupDialog({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email-signup" className="text-right">
-                Email
+              <Label htmlFor="username-signup" className="text-right">
+                Username
               </Label>
               <Input
-                id="email-signup"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username-signup"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="col-span-3"
                 required
               />
